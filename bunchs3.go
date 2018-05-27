@@ -1,11 +1,15 @@
 package bunchs3
 
-import "github.com/minio/minio-go"
+import (
+	"github.com/klauspost/reedsolomon"
+	"github.com/minio/minio-go"
+)
 
 // BunchS3 implements object-storage with the bunch of s3 buckets as backend.
 type BunchS3 struct {
 	cfg   Config
 	clnts []*minio.Client
+	enc   reedsolomon.Encoder
 }
 
 // S3Config is config for s3 service
@@ -67,6 +71,11 @@ func NewBunchS3(cfg Config) (*BunchS3, error) {
 	bs3.cfg = cfg
 	if len(cfg.s3cfgs) != cfg.dataShards+cfg.parityShards {
 		return nil, errS3cfgsLen
+	}
+	var err error
+	bs3.enc, err = reedsolomon.New(cfg.dataShards, cfg.parityShards)
+	if err != nil {
+		return nil, err
 	}
 	bs3.clnts = make([]*minio.Client, len(cfg.s3cfgs))
 	for i, s3cfg := range cfg.s3cfgs {
