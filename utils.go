@@ -70,6 +70,11 @@ func downloadFromS3ToBytes(clnt *minio.Client, bucket string, name string) ([]by
 	}
 	defer r.Close()
 
+	_, err = r.Stat()
+	if err != nil {
+		return nil, err
+	}
+
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(r)
 	return buf.Bytes(), nil

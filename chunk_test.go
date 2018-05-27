@@ -33,10 +33,11 @@ func Test_Content(t *testing.T) {
 	os.Remove(c2.path)
 
 	c3, err := newChunkFromMD5(c1.md5, bs3)
+	if err != nil {
+		t.Fatal(err)
+	}
 	s3, _ := c3.content()
 	if !bytes.Equal(s, s3) {
-		t.Log(c3.path)
-		t.Log(c3.size)
 		t.Fatalf("Chunk's content is changed after download.")
 	}
 }
