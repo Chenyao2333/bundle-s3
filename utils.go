@@ -1,4 +1,4 @@
-package bunchs3
+package bundles3
 
 import (
 	"bytes"

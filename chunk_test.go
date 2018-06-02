@@ -1,4 +1,4 @@
-package bunchs3
+package bundles3
 
 import (
 	"bytes"
@@ -11,11 +11,11 @@ func Test_Content(t *testing.T) {
 	sk := "QXYEyoDqBmOhSCVSrs+HYUwSoDz9msola52LMgfX"
 
 	bs3Cfg, _ := NewConfig([]S3Config{
-		S3Config{"storage.googleapis.com", ak, sk, "bunchs3-0", 0},
-		S3Config{"storage.googleapis.com", ak, sk, "bunchs3-1", 1},
-		S3Config{"storage.googleapis.com", ak, sk, "bunchs3-2", 2},
+		S3Config{"storage.googleapis.com", ak, sk, "bundles3-0", 0},
+		S3Config{"storage.googleapis.com", ak, sk, "bundles3-1", 1},
+		S3Config{"storage.googleapis.com", ak, sk, "bundles3-2", 2},
 	}, 2, 1)
-	bs3, _ := NewBunchS3(*bs3Cfg)
+	bs3, _ := NewBundleS3(*bs3Cfg)
 
 	s := []byte("world")
 	c1, _ := newChunk(s)
@@ -25,7 +25,7 @@ func Test_Content(t *testing.T) {
 		t.Fatalf("Chunk's content is changed.")
 	}
 
-	err := c2.uploadToBunchS3(bs3)
+	err := c2.uploadToBundleS3(bs3)
 	if err != nil {
 		t.Fatal(err)
 	}

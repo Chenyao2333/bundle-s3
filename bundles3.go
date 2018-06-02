@@ -1,12 +1,12 @@
-package bunchs3
+package bundles3
 
 import (
 	"github.com/klauspost/reedsolomon"
 	"github.com/minio/minio-go"
 )
 
-// BunchS3 implements object-storage with the bunch of s3 buckets as backend.
-type BunchS3 struct {
+// BundleS3 implements object-storage with the bunch of s3 buckets as backend.
+type BundleS3 struct {
 	cfg   Config
 	clnts []*minio.Client
 	enc   reedsolomon.Encoder
@@ -21,14 +21,14 @@ type S3Config struct {
 	rank     int
 }
 
-// Config is config for BunchS3
+// Config is config for BundleS3
 type Config struct {
 	s3cfgs       []S3Config
 	dataShards   int
 	parityShards int
 }
 
-// Error is the error type for bunchs3
+// Error is the error type for bundles3
 type Error string
 
 func (e Error) Error() string {
@@ -40,8 +40,8 @@ var errS3cfgsLen = Error("s3cfgs' length should equal to dataShards + parityShar
 var errS3cfgsRank = Error("S3Config's rank should equal to its index in array, it just used to emphasize the importance of order.")
 var errShardsNum = Error("Shards shourld greater than 0.")
 
-var tmpDir = "/tmp/bunchs3_tmp"
-var storageDir = "/tmp/bunchs3_storage"
+var tmpDir = "/tmp/bundles3_tmp"
+var storageDir = "/tmp/bundles3_storage"
 
 // NewConfig returns a pointer of Config instance.
 // s3cfgs is the array of s3 backends, the order is IMPORTANT.
@@ -65,9 +65,9 @@ func NewConfig(s3cfgs []S3Config, dataShards int, parityShards int) (*Config, er
 	return cfg, nil
 }
 
-// NewBunchS3 returns a pointer of BunchS3 instance.
-func NewBunchS3(cfg Config) (*BunchS3, error) {
-	bs3 := &BunchS3{}
+// NewBundleS3 returns a pointer of BundleS3 instance.
+func NewBundleS3(cfg Config) (*BundleS3, error) {
+	bs3 := &BundleS3{}
 	bs3.cfg = cfg
 	if len(cfg.s3cfgs) != cfg.dataShards+cfg.parityShards {
 		return nil, errS3cfgsLen
@@ -90,21 +90,21 @@ func NewBunchS3(cfg Config) (*BunchS3, error) {
 }
 
 // Put isn't implemented.
-func (bs3 *BunchS3) Put(name string, content []byte) error {
+func (bs3 *BundleS3) Put(name string, content []byte) error {
 	return errNonImplemented
 }
 
 // Get isn't implemented.
-func (bs3 *BunchS3) Get(name string) ([]byte, error) {
+func (bs3 *BundleS3) Get(name string) ([]byte, error) {
 	return nil, errNonImplemented
 }
 
 // List isn't implemented.
-func (bs3 *BunchS3) List(name string) ([]string, error) {
+func (bs3 *BundleS3) List(name string) ([]string, error) {
 	return nil, errNonImplemented
 }
 
 // Delete isn't implemented.
-func (bs3 *BunchS3) Delete(name string) error {
+func (bs3 *BundleS3) Delete(name string) error {
 	return errNonImplemented
 }

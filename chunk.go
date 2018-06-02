@@ -1,4 +1,4 @@
-package bunchs3
+package bundles3
 
 import (
 	"bytes"
@@ -32,13 +32,13 @@ func newChunk(content []byte) (*chunk, error) {
 	return c, nil
 }
 
-func newChunkFromMD5(md5 string, bs3 *BunchS3) (*chunk, error) {
+func newChunkFromMD5(md5 string, bs3 *BundleS3) (*chunk, error) {
 	c, err := newChunkFromLocal(md5)
 	if err == nil {
 		return c, nil
 	}
 
-	c, err = newChunkFromBunchS3(md5, bs3)
+	c, err = newChunkFromBundleS3(md5, bs3)
 	if err == nil {
 		return c, nil
 	}
@@ -59,7 +59,7 @@ func newChunkFromLocal(md5 string) (*chunk, error) {
 	return c, nil
 }
 
-func newChunkFromBunchS3(md5 string, bs3 *BunchS3) (*chunk, error) {
+func newChunkFromBundleS3(md5 string, bs3 *BundleS3) (*chunk, error) {
 	c := &chunk{}
 	c.md5 = md5
 
@@ -120,10 +120,10 @@ func newChunkFromBunchS3(md5 string, bs3 *BunchS3) (*chunk, error) {
 }
 
 func (c *chunk) shardName(i int) string {
-	return "chunks/" + c.md5 + "_" + strconv.Itoa(i)
+	return "shards/" + c.md5 + "_" + strconv.Itoa(i)
 }
 
-func (c *chunk) uploadToBunchS3(bs3 *BunchS3) error {
+func (c *chunk) uploadToBundleS3(bs3 *BundleS3) error {
 	content, err := ioutil.ReadFile(c.path)
 	if err != nil {
 		return err
