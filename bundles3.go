@@ -26,6 +26,7 @@ type Config struct {
 	s3cfgs       []S3Config
 	dataShards   int
 	parityShards int
+	chunkSize    int64
 }
 
 // Error is the error type for bundles3
@@ -48,7 +49,7 @@ var storageDir = "/tmp/bundles3_storage"
 // S3Config's rank should equal to its index in array,
 // it just used to emphasize the importance of order.
 // It needs dataShards + parityShards = len(s3cfgs).
-func NewConfig(s3cfgs []S3Config, dataShards int, parityShards int) (*Config, error) {
+func NewConfig(s3cfgs []S3Config, dataShards int, parityShards int, chunkSize int64) (*Config, error) {
 	if len(s3cfgs) != dataShards+parityShards {
 		return nil, errS3cfgsLen
 	}
@@ -61,7 +62,7 @@ func NewConfig(s3cfgs []S3Config, dataShards int, parityShards int) (*Config, er
 		}
 	}
 
-	cfg := &Config{s3cfgs, dataShards, parityShards}
+	cfg := &Config{s3cfgs, dataShards, parityShards, chunkSize}
 	return cfg, nil
 }
 
@@ -90,12 +91,12 @@ func NewBundleS3(cfg Config) (*BundleS3, error) {
 }
 
 // Put isn't implemented.
-func (bs3 *BundleS3) Put(name string, content []byte) error {
+func (bs3 *BundleS3) Put(name string, o *Object) error {
 	return errNonImplemented
 }
 
 // Get isn't implemented.
-func (bs3 *BundleS3) Get(name string) ([]byte, error) {
+func (bs3 *BundleS3) Get(name string) (*Object, error) {
 	return nil, errNonImplemented
 }
 

@@ -123,7 +123,7 @@ func (c *chunk) shardName(i int) string {
 	return "shards/" + c.md5 + "_" + strconv.Itoa(i)
 }
 
-func (c *chunk) uploadToBundleS3(bs3 *BundleS3) error {
+func (c *chunk) upload(bs3 *BundleS3) error {
 	content, err := ioutil.ReadFile(c.path)
 	if err != nil {
 		return err

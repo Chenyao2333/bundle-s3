@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func Test_Content(t *testing.T) {
+func genBS3Cfg(chunkSize int64) *Config {
 	ak := "GOOGRAQOLAYSQGMH6LT66OJ3"
 	sk := "QXYEyoDqBmOhSCVSrs+HYUwSoDz9msola52LMgfX"
 
@@ -14,7 +14,13 @@ func Test_Content(t *testing.T) {
 		S3Config{"storage.googleapis.com", ak, sk, "bundles3-0", 0},
 		S3Config{"storage.googleapis.com", ak, sk, "bundles3-1", 1},
 		S3Config{"storage.googleapis.com", ak, sk, "bundles3-2", 2},
-	}, 2, 1)
+	}, 2, 1, chunkSize)
+
+	return bs3Cfg
+}
+
+func Test_chunk(t *testing.T) {
+	bs3Cfg := genBS3Cfg(64 * 1024)
 	bs3, _ := NewBundleS3(*bs3Cfg)
 
 	s := []byte("world")
@@ -25,7 +31,7 @@ func Test_Content(t *testing.T) {
 		t.Fatalf("Chunk's content is changed.")
 	}
 
-	err := c2.uploadToBundleS3(bs3)
+	err := c2.upload(bs3)
 	if err != nil {
 		t.Fatal(err)
 	}
