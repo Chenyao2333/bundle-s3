@@ -90,14 +90,12 @@ func NewBundleS3(cfg Config) (*BundleS3, error) {
 	return bs3, nil
 }
 
-// Put isn't implemented.
 func (bs3 *BundleS3) Put(name string, o *Object) error {
-	return errNonImplemented
+	return o.Upload(bs3)
 }
 
-// Get isn't implemented.
 func (bs3 *BundleS3) Get(name string) (*Object, error) {
-	return nil, errNonImplemented
+	return NewObjectFromBundleS3(name, bs3)
 }
 
 // List isn't implemented.
