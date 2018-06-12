@@ -30,6 +30,21 @@ func NewObjectFromLocalFile(path string, name string) (*Object, error) {
 	return o, nil
 }
 
+func NewObjectFromContent(c []byte, name string) (*Object, error) {
+	if len(name) < 1 {
+		return nil, Error("Empty name is not allowed.")
+	}
+	path, err := saveContentToLocal(name, c)
+	if err != nil {
+		return nil, err
+	}
+
+	o := &Object{}
+	o.name = name
+	o.local_path = path
+	return o, nil
+}
+
 func (o *Object) Path() string {
 	return o.local_path
 }
@@ -84,7 +99,7 @@ func (o *Object) genMeta(cs []*chunk) meta {
 func downloadMeta(bs3 *BundleS3, name string) (meta, error) {
 	name = "index/" + name
 	for i := range bs3.clnts {
-		byteM, err := downloadFromS3ToBytes(bs3.clnts[i], bs3.cfg.s3cfgs[i].bucket, name)
+		byteM, err := downloadFromS3ToBytes(bs3.clnts[i], bs3.cfg.s3cfgs[i].Bucket, name)
 		if err == nil {
 			var m meta
 			err = json.Unmarshal(byteM, &m)
@@ -115,7 +130,7 @@ func (o *Object) Upload(bs3 *BundleS3) error {
 
 	ch := make(chan error, bs3.cfg.dataShards+bs3.cfg.parityShards)
 	f := func(i int) {
-		err := saveContentToS3(bs3.clnts[i], bs3.cfg.s3cfgs[i].bucket, indexFileName, byteM)
+		err := saveContentToS3(bs3.clnts[i], bs3.cfg.s3cfgs[i].Bucket, indexFileName, byteM)
 		ch <- err
 	}
 	for i := range bs3.clnts {

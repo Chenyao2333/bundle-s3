@@ -1,6 +1,8 @@
 package bundles3
 
 import (
+	"fmt"
+
 	"github.com/klauspost/reedsolomon"
 	"github.com/minio/minio-go"
 )
@@ -14,11 +16,11 @@ type BundleS3 struct {
 
 // S3Config is config for s3 service
 type S3Config struct {
-	endpoint string
-	ak       string
-	sk       string
-	bucket   string
-	rank     int
+	Endpoint string
+	Ak       string
+	Sk       string
+	Bucket   string
+	Rank     int
 }
 
 // Config is config for BundleS3
@@ -57,7 +59,7 @@ func NewConfig(s3cfgs []S3Config, dataShards int, parityShards int, chunkSize in
 		return nil, errShardsNum
 	}
 	for i := 0; i < len(s3cfgs); i++ {
-		if s3cfgs[i].rank != i {
+		if s3cfgs[i].Rank != i {
 			return nil, errS3cfgsRank
 		}
 	}
@@ -80,7 +82,7 @@ func NewBundleS3(cfg Config) (*BundleS3, error) {
 	}
 	bs3.clnts = make([]*minio.Client, len(cfg.s3cfgs))
 	for i, s3cfg := range cfg.s3cfgs {
-		clnt, err := minio.New(s3cfg.endpoint, s3cfg.ak, s3cfg.sk, false)
+		clnt, err := minio.New(s3cfg.Endpoint, s3cfg.Ak, s3cfg.Sk, false)
 		if err != nil {
 			return nil, err
 		}
@@ -98,12 +100,40 @@ func (bs3 *BundleS3) Get(name string) (*Object, error) {
 	return NewObjectFromBundleS3(name, bs3)
 }
 
-// List isn't implemented.
+// List is not designed for normal use
 func (bs3 *BundleS3) List(name string) ([]string, error) {
-	return nil, errNonImplemented
+	doneCh := make(chan struct{})
+	defer close(doneCh)
+
+	l := make([]string, 0)
+	n := 0
+	name = "index/" + name
+	for object := range bs3.clnts[0].ListObjects(bs3.cfg.s3cfgs[0].Bucket, name, true, doneCh) {
+		if object.Err != nil {
+			fmt.Println(object.Err)
+		}
+		k := object.Key[len("index/"):]
+		l = append(l, k)
+		fmt.Printf(k)
+		n++
+		if n >= 100 {
+			break
+		}
+	}
+	// no error?
+	return l, nil
 }
 
-// Delete isn't implemented.
+// Delete is not designed for normal use
 func (bs3 *BundleS3) Delete(name string) error {
-	return errNonImplemented
+	name = "index/" + name
+	cnt := 0
+	for i, clnt := range bs3.clnts {
+		err := clnt.RemoveObject(bs3.cfg.s3cfgs[i].Bucket, name)
+		if err != nil {
+			cnt++
+		}
+	}
+	// we may failing delete
+	return nil
 }

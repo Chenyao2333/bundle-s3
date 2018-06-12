@@ -72,7 +72,7 @@ func newChunkFromBundleS3(md5 string, bs3 *BundleS3) (*chunk, error) {
 		var err error
 		for times < 3 {
 			times++
-			d, err := downloadFromS3ToBytes(bs3.clnts[i], bs3.cfg.s3cfgs[i].bucket, c.shardName(i))
+			d, err := downloadFromS3ToBytes(bs3.clnts[i], bs3.cfg.s3cfgs[i].Bucket, c.shardName(i))
 			if err != nil {
 				time.Sleep(2 * time.Second)
 			} else {
@@ -167,7 +167,7 @@ func (c *chunk) upload(bs3 *BundleS3) error {
 	binary.LittleEndian.PutUint64(hdrSize, uint64(c.size))
 
 	for i, d := range data {
-		go f(bs3.clnts[i], bs3.cfg.s3cfgs[i].bucket, c.shardName(i), append(hdrSize, d...))
+		go f(bs3.clnts[i], bs3.cfg.s3cfgs[i].Bucket, c.shardName(i), append(hdrSize, d...))
 	}
 
 	for i := 0; i < len(data); i++ {
